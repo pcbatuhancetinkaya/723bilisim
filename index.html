@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7/23 Bilişim Hizmetleri | Elazığ Teknik Servis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0a192f; /* Derin Lacivert */
+            --electric-cyan: #00f2ff; /* Neon Siyan */
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; color: var(--primary-blue); scroll-behavior: smooth; }
+        .navbar { background-color: var(--primary-blue); border-bottom: 2px solid var(--electric-cyan); }
+        .hero-section { background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)), url('https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?q=80&w=2070&auto=format&fit=crop'); 
+                        background-size: cover; color: white; padding: 100px 0; text-align: center; }
+        .btn-cyan { background-color: var(--electric-cyan); color: var(--primary-blue); font-weight: bold; border: none; padding: 12px 30px; }
+        .btn-cyan:hover { background-color: #00dce6; transform: scale(1.02); }
+        .form-container { background: white; padding: 40px; border-radius: 15px; border-top: 5px solid var(--electric-cyan); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .eco-badge { background-color: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; font-size: 0.9em; margin-bottom: 25px; border: 1px solid #c8e6c9; }
+        .form-label { font-weight: 600; font-size: 0.9rem; color: #444; }
+        footer { background-color: var(--primary-blue); color: white; padding: 30px 0; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">7/23 BİLİŞİM</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="#hizmetler">Hizmetler</a></li>
+                <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
+                <li class="nav-item"><a class="nav-link btn btn-cyan ms-lg-3" href="#randevu">Randevu Al</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-section">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Elazığ'ın Dijital Teknik Servisi</h1>
+        <p class="lead mb-4">Cihazınızı kapınızdan alıyoruz, onarıp adresinize teslim ediyoruz.</p>
+        <a href="#randevu" class="btn btn-cyan btn-lg">Hemen Randevu Oluştur</a>
+    </div>
+</header>
+
+<section id="randevu" class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="form-container">
+                    <div class="eco-badge text-center">
+                        🌿 <strong>Sıfır Kağıt Atığı:</strong> Servis formunuz anında dijital PDF olarak iletilir.
+                    </div>
+                    <h2 class="text-center mb-4 fw-bold">Servis Randevusu</h2>
+                    <form action="/randevu-al" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Ad Soyad</label>
+                            <input type="text" name="ad" class="form-control" placeholder="Örn: Batuhan Şahin" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telefon</label>
+                            <input type="text" name="tel" class="form-control" placeholder="05XX XXX XX XX" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Adres (Elazığ)</label>
+                            <textarea name="adres" class="form-control" rows="2" placeholder="Mahalle, Sokak, No..." required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Marka</label>
+                                <input type="text" name="marka" class="form-control" placeholder="Örn: Apple, HP" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Model</label>
+                                <input type="text" name="model" class="form-control" placeholder="Örn: MacBook Pro, Pavilion" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Arıza & Talep Detayı</label>
+                            <textarea name="detay" class="form-control" rows="4" placeholder="Cihazdaki sorunları veya özel taleplerinizi detaylıca yazın..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-cyan w-100 py-3">Randevu Oluştur & PDF Belgesini İndir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="text-center">
+    <div class="container">
+        <p class="mb-0">© 2026 7/23 Bilişim Hizmetleri | Elazığ</p>
+        <small class="text-muted">Doğa dostu teknik servis çözümleri.</small>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
