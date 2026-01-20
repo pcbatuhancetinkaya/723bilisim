@@ -9,7 +9,7 @@ app = Flask(__name__)
 class DijitalServisFormu(FPDF):
     def header(self):
         # Logo dosyasının GitHub ana dizininde olduğundan emin ol
-        logo_yolu = '723_bilisim_hizmetleri_highres.jpg'
+        logo_yolu = '723_bilisim_hizmetleri_highres.png'
         if os.path.exists(logo_yolu):
             self.image(logo_yolu, 10, 8, 30)
             
@@ -103,3 +103,4 @@ def randevu_al():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
