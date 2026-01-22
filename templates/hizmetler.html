@@ -1,1 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hizmetlerimiz - 7/23 Bilişim</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <style>
+        :root { --primary-color: #00d2ff; --secondary-color: #1a2a6c; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .service-header { background: linear-gradient(135deg, var(--secondary-color), #b21f1f, #fdbb2d); color: white; padding: 60px 0; text-align: center; }
+        .service-card { border: none; transition: 0.3s; border-radius: 15px; height: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .service-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .icon-box { width: 70px; height: 70px; background: rgba(0, 210, 255, 0.1); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
 
+    <section class="service-header">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Profesyonel Bilişim Çözümleri</h1>
+            <p class="lead">Elazığ'ın dijital dönüşümünde 5 yıllık teknik tecrübemizle yanınızdayız.</p>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card service-card p-4">
+                    <div class="icon-box"><i class="fas fa-laptop-medical"></i></div>
+                    <h4 class="fw-bold">Donanım Onarım & Bakım</h4>
+                    <p class="text-muted">HP, Lenovo, Asus ve Dell cihazlarınızda anakart onarımı, panel değişimi ve statik elektrik alma gibi kritik teknik işlemleri profesyonel ekipmanlarla gerçekleştiriyoruz.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card service-card p-4">
+                    <div class="icon-box"><i class="fas fa-server"></i></div>
+                    <h4 class="fw-bold">Kurumsal Sistem Çözümleri</h4>
+                    <p class="text-muted">İşletmenizin ihtiyacı olan Server, Storage, Switch ve iş istasyonlarını (Workstation) stoklu ve proje bazlı olarak tedarik ediyor, kurulumlarını yapıyoruz.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card service-card p-4">
+                    <div class="icon-box"><i class="fab fa-python"></i></div>
+                    <h4 class="fw-bold">Özel Yazılım & Otomasyon</h4>
+                    <p class="text-muted">Python ve modern kütüphanelerle işletmenize özel fiyat takip botları, veri analitiği araçları ve süreç otomasyonları geliştiriyoruz.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card service-card p-4">
+                    <div class="icon-box"><i class="fas fa-gavel"></i></div>
+                    <h4 class="fw-bold">Teknik Danışmanlık & Bilirkişilik</h4>
+                    <p class="text-muted">Bilişim sistemleri ve donanım konularında yasal süreçlere uygun teknik analizler ve bilirkişi raporları sunuyoruz.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card service-card p-4">
+                    <div class="icon-box"><i class="fas fa-truck-fast"></i></div>
+                    <h4 class="fw-bold">Kapıdan Al, Adrese Teslim</h4>
+                    <p class="text-muted">Elazığ içinde cihazınızı kapınızdan alıyor, onarım sonrası profesyonelce dezenfekte ederek adresinize teslim ediyoruz. Zamanınız size kalsın.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
