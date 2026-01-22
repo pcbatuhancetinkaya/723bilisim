@@ -9,6 +9,7 @@ app = Flask(__name__)
 class DijitalServisFormu(FPDF):
     def header(self):
         # Logo dosyasının GitHub ana dizininde olduğundan emin ol
+        # Not: Önceki sürümde .jpg olan dosya adını koduna göre .png olarak güncelledim
         logo_yolu = '723_bilisim_hizmetleri_highres.png'
         if os.path.exists(logo_yolu):
             self.image(logo_yolu, 10, 8, 30)
@@ -44,6 +45,16 @@ def ana_sayfa():
     # templates/index.html dosyasının varlığına dikkat edilmeli
     return render_template('index.html')
 
+@app.route('/hizmetler')
+def hizmetler():
+    # Yeni oluşturduğumuz templates/hizmetler.html sayfasına yönlendirir
+    return render_template('hizmetler.html')
+
+@app.route('/blog')
+def blog():
+    # İleride ekleyeceğimiz blog yazıları için hazır alan
+    return render_template('blog.html')
+
 @app.route('/randevu-al', methods=['POST'])
 def randevu_al():
     # Form verilerini yakalama
@@ -58,6 +69,7 @@ def randevu_al():
 
     # PDF Nesnesi ve Fontlar (Vercel uyumu için .ttf uzantıları gereklidir)
     pdf = DijitalServisFormu()
+    # Fontların GitHub'da .ttf uzantısıyla mevcut olduğundan emin olun
     pdf.add_font('TurkishArial', '', "arial.ttf")
     pdf.add_font('TurkishArial', 'B', "arialbd.ttf")
     pdf.add_font('TurkishArial', 'I', "ariali.ttf")
@@ -103,4 +115,3 @@ def randevu_al():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
