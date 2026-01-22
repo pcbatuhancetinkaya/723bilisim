@@ -12,8 +12,11 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; color: var(--primary-blue); scroll-behavior: smooth; }
         .navbar { background-color: var(--primary-blue); border-bottom: 2px solid var(--electric-cyan); }
-        .hero-section { background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)), url('https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?q=80&w=2070&auto=format&fit=crop'); 
-                        background-size: cover; color: white; padding: 100px 0; text-align: center; }
+        .hero-section { 
+            background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)), 
+            url('https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?q=80&w=2070&auto=format&fit=crop'); 
+            background-size: cover; color: white; padding: 100px 0; text-align: center; 
+        }
         .btn-cyan { background-color: var(--electric-cyan); color: var(--primary-blue); font-weight: bold; border: none; padding: 12px 30px; }
         .btn-cyan:hover { background-color: #00dce6; transform: scale(1.02); }
         .form-container { background: white; padding: 40px; border-radius: 15px; border-top: 5px solid var(--electric-cyan); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -26,14 +29,14 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#">7/23 BİLİŞİM</a>
+        <a class="navbar-brand fw-bold" href="/">7/23 BİLİŞİM</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="#hizmetler">Hizmetler</a></li>
-                <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
+                <li class="nav-item"><a class="nav-link" href="/hizmetler">Hizmetler</a></li>
+                <li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
                 <li class="nav-item"><a class="nav-link btn btn-cyan ms-lg-3" href="#randevu">Randevu Al</a></li>
             </ul>
         </div>
@@ -104,5 +107,4 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
