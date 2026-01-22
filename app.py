@@ -8,16 +8,13 @@ app = Flask(__name__)
 # --- PDF SINIFI YAPILANDIRMASI ---
 class DijitalServisFormu(FPDF):
     def header(self):
-        # Logo dosyasının GitHub ana dizininde olduğundan emin ol
-        # Not: Önceki sürümde .jpg olan dosya adını koduna göre .png olarak güncelledim
         logo_yolu = '723_bilisim_hizmetleri_highres.png'
         if os.path.exists(logo_yolu):
             self.image(logo_yolu, 10, 8, 30)
             
-        # Başlık Bölümü (TurkishArial Fontu Kullanılır)
         self.set_font('TurkishArial', 'B', 16)
-        self.set_text_color(20, 40, 80) # Kurumsal Lacivert
-        self.cell(40) # Logo boşluğu
+        self.set_text_color(20, 40, 80)
+        self.cell(40)
         self.cell(0, 10, '7/23 BİLİŞİM HİZMETLERİ', border=False, ln=1, align='L')
         
         self.cell(40)
@@ -26,10 +23,9 @@ class DijitalServisFormu(FPDF):
         self.ln(15)
 
     def footer(self):
-        # Sayfa Altı Çevreci Mesaj
         self.set_y(-30)
         self.set_font('TurkishArial', 'I', 8)
-        self.set_text_color(34, 139, 34) # Doğa dostu yeşil
+        self.set_text_color(34, 139, 34)
         mesaj = ("Bu belge doğayı korumak ve kağıt israfını önlemek adına dijital olarak üretilmiştir. "
                  "7/23 Bilişim Hizmetleri olarak sürdürülebilirliği destekliyoruz.")
         self.multi_cell(0, 5, mesaj, align='C')
@@ -42,22 +38,38 @@ class DijitalServisFormu(FPDF):
 
 @app.route('/')
 def ana_sayfa():
-    # templates/index.html dosyasının varlığına dikkat edilmeli
     return render_template('index.html')
 
 @app.route('/hizmetler')
 def hizmetler():
-    # Yeni oluşturduğumuz templates/hizmetler.html sayfasına yönlendirir
     return render_template('hizmetler.html')
 
+# --- BLOG ROTALARI ---
+
 @app.route('/blog')
-def blog():
-    # İleride ekleyeceğimiz blog yazıları için hazır alan
+def blog_ana_sayfa():
+    # Blog listesi sayfası
     return render_template('blog.html')
+
+@app.route('/blog/ssd-yukseltme')
+def blog_ssd():
+    # SSD bilgilendirme sayfası
+    return render_template('blog_ssd.html')
+
+@app.route('/blog/periyodik-bakim')
+def blog_bakim():
+    # Periyodik bakım bilgilendirme sayfası
+    return render_template('blog_bakim.html')
+
+@app.route('/blog/ram-yukseltme')
+def blog_ram():
+    # RAM yükseltme bilgilendirme sayfası
+    return render_template('blog_ram.html')
+
+# --- RANDEVU VE PDF İŞLEMLERİ ---
 
 @app.route('/randevu-al', methods=['POST'])
 def randevu_al():
-    # Form verilerini yakalama
     bilgiler = {
         "ad": request.form.get('ad'),
         "tel": request.form.get('tel'),
@@ -67,9 +79,7 @@ def randevu_al():
         "detay": request.form.get('detay')
     }
 
-    # PDF Nesnesi ve Fontlar (Vercel uyumu için .ttf uzantıları gereklidir)
     pdf = DijitalServisFormu()
-    # Fontların GitHub'da .ttf uzantısıyla mevcut olduğundan emin olun
     pdf.add_font('TurkishArial', '', "arial.ttf")
     pdf.add_font('TurkishArial', 'B', "arialbd.ttf")
     pdf.add_font('TurkishArial', 'I', "ariali.ttf")
@@ -77,7 +87,6 @@ def randevu_al():
     pdf.add_page()
     pdf.set_font('TurkishArial', '', 11)
 
-    # İçerik Bölümü: Tarih ve Bilgiler
     pdf.set_fill_color(240, 240, 240)
     tarih_str = datetime.now().strftime('%d/%m/%Y %H:%M')
     pdf.cell(0, 10, f"Servis Kayıt Tarihi: {tarih_str}", ln=1, fill=True)
@@ -103,14 +112,11 @@ def randevu_al():
     pdf.set_text_color(20, 40, 80)
     pdf.cell(0, 10, "Bu belge 7/23 Bilişim Hizmetleri tarafından dijital olarak onaylanmıştır.", ln=1, align='C')
 
-    # --- VERCEL İÇİN KRİTİK DOSYA YOLU ---
-    # Vercel sadece /tmp klasörüne yazma izni verir
     dosya_adi = f"723_Servis_Formu_{bilgiler['ad'].replace(' ', '_')}.pdf"
     output_path = os.path.join('/tmp', dosya_adi)
     
     pdf.output(output_path)
     
-    # Oluşturulan dosyayı tarayıcıya gönder
     return send_file(output_path, as_attachment=True)
 
 if __name__ == '__main__':
