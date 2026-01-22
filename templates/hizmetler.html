@@ -7,66 +7,110 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
     <style>
-        :root { --primary-color: #00d2ff; --secondary-color: #1a2a6c; }
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .service-header { background: linear-gradient(135deg, var(--secondary-color), #b21f1f, #fdbb2d); color: white; padding: 60px 0; text-align: center; }
-        .service-card { border: none; transition: 0.3s; border-radius: 15px; height: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        :root { --primary-blue: #0a192f; --electric-cyan: #00f2ff; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--primary-blue); border-bottom: 2px solid var(--electric-cyan); }
+        .service-header { background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)), url('https://images.unsplash.com/photo-1597733336794-12d05021d510?q=80&w=1974&auto=format&fit=crop'); background-size: cover; color: white; padding: 60px 0; text-align: center; }
+        .service-card { border: none; transition: 0.3s; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: white; }
         .service-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .icon-box { width: 70px; height: 70px; background: rgba(0, 210, 255, 0.1); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 20px; }
+        .service-img { height: 200px; object-fit: cover; width: 100%; }
+        .icon-badge { background: var(--electric-cyan); color: var(--primary-blue); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 10px; }
+        footer { background-color: var(--primary-blue); color: white; padding: 30px 0; margin-top: 50px; }
     </style>
 </head>
 <body>
 
-    <section class="service-header">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <h1 class="display-4 fw-bold">Profesyonel Bilişim Çözümleri</h1>
-            <p class="lead">Elazığ'ın dijital dönüşümünde 5 yıllık teknik tecrübemizle yanınızdayız.</p>
+            <a class="navbar-brand fw-bold" href="/">7/23 BİLİŞİM</a>
+            <div class="ms-auto">
+                <a href="/" class="btn btn-outline-light btn-sm">Ana Sayfaya Dön</a>
+            </div>
         </div>
-    </section>
+    </nav>
+
+    <header class="service-header">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Profesyonel Teknik Çözümler</h1>
+            <p class="lead">Cihazınızın ömrünü uzatıyor, performansını zirveye taşıyoruz.</p>
+        </div>
+    </header>
 
     <div class="container my-5">
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card service-card p-4">
-                    <div class="icon-box"><i class="fas fa-laptop-medical"></i></div>
-                    <h4 class="fw-bold">Donanım Onarım & Bakım</h4>
-                    <p class="text-muted">HP, Lenovo, Asus ve Dell cihazlarınızda anakart onarımı, panel değişimi ve statik elektrik alma gibi kritik teknik işlemleri profesyonel ekipmanlarla gerçekleştiriyoruz.</p>
+                <div class="card service-card">
+                    <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" class="service-img" alt="Arıza Tespiti">
+                    <div class="card-body">
+                        <div class="icon-badge"><i class="fas fa-search"></i> Profesyonel Teşhis</div>
+                        <h5 class="fw-bold">Hızlı Arıza Tespiti</h5>
+                        <p class="text-muted small">Cihazınızdaki donanımsal ve yazılımsal sorunları profesyonel test araçlarıyla noktasal olarak belirliyoruz. Tahminle değil, veriyle hareket ediyoruz.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card service-card p-4">
-                    <div class="icon-box"><i class="fas fa-server"></i></div>
-                    <h4 class="fw-bold">Kurumsal Sistem Çözümleri</h4>
-                    <p class="text-muted">İşletmenizin ihtiyacı olan Server, Storage, Switch ve iş istasyonlarını (Workstation) stoklu ve proje bazlı olarak tedarik ediyor, kurulumlarını yapıyoruz.</p>
+                <div class="card service-card">
+                    <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=1974&auto=format&fit=crop" class="service-img" alt="Donanım Onarımı">
+                    <div class="card-body">
+                        <div class="icon-badge"><i class="fas fa-tools"></i> Uzman Onarım</div>
+                        <h5 class="fw-bold">Donanım Onarım & Değişim</h5>
+                        <p class="text-muted small">Kırık ekran (panel) değişimi, klavye değişimi, menteşe onarımı ve anakart müdahalelerini orijinal veya yüksek kaliteli parçalarla yapıyoruz.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card service-card p-4">
-                    <div class="icon-box"><i class="fab fa-python"></i></div>
-                    <h4 class="fw-bold">Özel Yazılım & Otomasyon</h4>
-                    <p class="text-muted">Python ve modern kütüphanelerle işletmenize özel fiyat takip botları, veri analitiği araçları ve süreç otomasyonları geliştiriyoruz.</p>
+                <div class="card service-card">
+                    <img src="https://images.unsplash.com/photo-1562976540-1502c2145186?q=80&w=2061&auto=format&fit=crop" class="service-img" alt="Upgrade">
+                    <div class="card-body">
+                        <div class="icon-badge"><i class="fas fa-rocket"></i> Performans Artışı</div>
+                        <h5 class="fw-bold">RAM & SSD Yükseltme</h5>
+                        <p class="text-muted small">Eski bilgisayarınızı çöpe atmayın! SSD ve RAM upgrade işlemleriyle cihazınızın açılış ve çalışma hızını 10 kata kadar artırıyoruz.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card service-card p-4">
-                    <div class="icon-box"><i class="fas fa-gavel"></i></div>
-                    <h4 class="fw-bold">Teknik Danışmanlık & Bilirkişilik</h4>
-                    <p class="text-muted">Bilişim sistemleri ve donanım konularında yasal süreçlere uygun teknik analizler ve bilirkişi raporları sunuyoruz.</p>
+                <div class="card service-card">
+                    <img src="https://images.unsplash.com/photo-1555617766-c94804975da3?q=80&w=2070&auto=format&fit=crop" class="service-img" alt="Bakım">
+                    <div class="card-body">
+                        <div class="icon-badge"><i class="fas fa-wind"></i> Termal Bakım</div>
+                        <h5 class="fw-bold">Periyodik Genel Bakım</h5>
+                        <p class="text-muted small">Isınma ve donma sorunlarına son! Fan temizliği ve yüksek kaliteli termal macun değişimi ile cihazınızın sessiz ve serin çalışmasını sağlıyoruz.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card service-card p-4">
-                    <div class="icon-box"><i class="fas fa-truck-fast"></i></div>
-                    <h4 class="fw-bold">Kapıdan Al, Adrese Teslim</h4>
-                    <p class="text-muted">Elazığ içinde cihazınızı kapınızdan alıyor, onarım sonrası profesyonelce dezenfekte ederek adresinize teslim ediyoruz. Zamanınız size kalsın.</p>
+                <div class="card service-card">
+                    <img src="https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080&auto=format&fit=crop" class="service-img" alt="Yazılım">
+                    <div class="card-body">
+                        <div class="icon-badge"><i class="fas fa-desktop"></i> Yazılım Desteği</div>
+                        <h5 class="fw-bold">Sistem & Program Kurulumu</h5>
+                        <p class="text-muted small">Windows/MacOS kurulumu, sürücü (driver) güncellemeleri ve ihtiyacınız olan profesyonel programların stabil kurulumlarını gerçekleştiriyoruz.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card service-card bg-light border-primary">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center py-5">
+                        <div class="h1 text-primary mb-3"><i class="fas fa-truck-fast"></i></div>
+                        <h5 class="fw-bold">Kapıdan Al, Teslim Et</h5>
+                        <p class="text-muted">Elazığ içi ücretsiz alım ve onarım sonrası adrese teslimat seçeneğimizle hizmetinizdeyiz.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-0">© 2026 7/23 Bilişim Hizmetleri | Elazığ</p>
+            <p class="small text-muted">Teknolojiye Güvenilir Dokunuş.</p>
+        </div>
+    </footer>
 
 </body>
 </html>
