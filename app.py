@@ -8,21 +8,23 @@ import tempfile
 app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
-DB_NAME = 'teknik_servis.db'
 
-# --- KESİN DOSYA YOLLARI ---
+# --- VERCEL ÖZEL YOL AYARLARI ---
+# Vercel'de sadece /tmp dizinine yazma izni vardır
+DB_PATH = '/tmp/teknik_servis.db' 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Hız için JPEG kullanıyoruz (image_327b56.png'de mevcut olduğunu teyit ettik)
 LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
 FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
 # --- VERİTABANI MOTORU ---
 def get_db_connection():
-    conn = sqlite3.connect(os.path.join(BASE_DIR, DB_NAME))
+    # Veritabanı dosyasını yazılabilir /tmp dizininde açar
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 def veritabani_hazirla():
+    # Tabloları /tmp içindeki dosyada oluşturur
     with get_db_connection() as conn:
         conn.execute('''CREATE TABLE IF NOT EXISTS randevular
                      (id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -31,7 +33,11 @@ def veritabani_hazirla():
                       tarih TEXT)''')
         conn.commit()
 
-veritabani_hazirla()
+# Vercel cold-start sırasında veritabanını hazırlar
+try:
+    veritabani_hazirla()
+except Exception as e:
+    print(f"DB Hazırlama Hatası: {e}")
 
 # --- PDF MOTORU ---
 class DijitalServisFormu(FPDF):
@@ -52,43 +58,32 @@ class DijitalServisFormu(FPDF):
         self.ln(15)
 
 # --- ANA SAYFA VE KURUMSAL ROTALAR ---
-
 @app.route('/')
-def ana_sayfa(): 
-    return render_template('index.html')
+def ana_sayfa(): return render_template('index.html')
 
 @app.route('/hizmetler')
-def hizmetler(): 
-    return render_template('hizmetler.html')
+def hizmetler(): return render_template('hizmetler.html')
 
-# --- BLOG ROTALARI (Görseldeki dosya isimlerine göre uyarlandı) ---
-
+# --- BLOG ROTALARI ---
 @app.route('/blog')
-def blog_ana_sayfa(): 
-    return render_template('blog.html')
+def blog_ana_sayfa(): return render_template('blog.html')
 
 @app.route('/blog/ssd-yukseltme')
-def blog_ssd():
-    return render_template('blog_ssd.html')
+def blog_ssd(): return render_template('blog_ssd.html')
 
 @app.route('/blog/periyodik-bakim')
-def blog_bakim():
-    return render_template('blog_bakim.html')
+def blog_bakim(): return render_template('blog_bakim.html')
 
 @app.route('/blog/ram-yukseltme')
-def blog_ram():
-    return render_template('blog_ram.html')
+def blog_ram(): return render_template('blog_ram.html')
 
 @app.route('/blog/sivi-temasi')
-def blog_sivi_temasi():
-    return render_template('blog_sivi_temasi.html')
+def blog_sivi_temasi(): return render_template('blog_sivi_temasi.html')
 
 @app.route('/blog/ekran-degisimi')
-def blog_ekran():
-    return render_template('blog_ekran.html')
+def blog_ekran(): return render_template('blog_ekran.html')
 
 # --- ADMİN VE YÖNETİM ---
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -105,27 +100,22 @@ def logout():
 
 @app.route('/servis-yonetim')
 def admin_paneli():
-    if not session.get('logged_in'): 
-        return redirect(url_for('login'))
+    if not session.get('logged_in'): return redirect(url_for('login'))
     with get_db_connection() as conn:
         randevular = conn.execute("SELECT id, ad, tel, tarih FROM randevular ORDER BY id DESC").fetchall()
     return render_template('admin.html', randevular=randevular)
 
 @app.route('/servis-detay/<int:id>')
 def servis_detay(id):
-    if not session.get('logged_in'): 
-        return redirect(url_for('login'))
+    if not session.get('logged_in'): return redirect(url_for('login'))
     with get_db_connection() as conn:
         randevu = conn.execute("SELECT * FROM randevular WHERE id = ?", (id,)).fetchone()
-    
     if randevu is None:
         flash('Kayıt bulunamadı!', 'danger')
         return redirect(url_for('admin_paneli'))
-        
     return render_template('detay.html', r=randevu)
 
 # --- RANDEVU VE PDF OLUŞTURMA ---
-
 @app.route('/randevu-al', methods=['POST'])
 def randevu_al():
     try:
@@ -141,6 +131,7 @@ def randevu_al():
         pdf = DijitalServisFormu()
         pdf.add_page()
 
+        # Latin-1 hatasını engellemek için uni=True parametresi kritiktir
         if os.path.exists(FONT_PATH):
             pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
