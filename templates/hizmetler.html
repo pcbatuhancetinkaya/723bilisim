@@ -1,34 +1,22 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hizmetlerimiz - 7/23 Bilişim</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+{% extends "base.html" %}
+
+{% block title %}Hizmetlerimiz - 7/23 Bilişim{% endblock %}
+
+{% block head %}
     <style>
-        :root { --primary-blue: #0a192f; --electric-cyan: #00f2ff; }
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--primary-blue); border-bottom: 2px solid var(--electric-cyan); }
-        .service-header { background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)), url('https://images.unsplash.com/photo-1597733336794-12d05021d510?q=80&w=1974&auto=format&fit=crop'); background-size: cover; color: white; padding: 60px 0; text-align: center; }
+        .service-header { 
+            background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)), 
+            url('https://images.unsplash.com/photo-1597733336794-12d05021d510?q=80&w=1974&auto=format&fit=crop'); 
+            background-size: cover; color: white; padding: 60px 0; text-align: center; 
+        }
         .service-card { border: none; transition: 0.3s; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: white; }
         .service-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .service-img { height: 200px; object-fit: cover; width: 100%; }
         .icon-badge { background: var(--electric-cyan); color: var(--primary-blue); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 10px; }
-        footer { background-color: var(--primary-blue); color: white; padding: 30px 0; margin-top: 50px; }
     </style>
-</head>
-<body>
+{% endblock %}
 
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">7/23 BİLİŞİM</a>
-            <div class="ms-auto">
-                <a href="/" class="btn btn-outline-light btn-sm">Ana Sayfaya Dön</a>
-            </div>
-        </div>
-    </nav>
-
+{% block content %}
     <header class="service-header">
         <div class="container">
             <h1 class="display-5 fw-bold">Profesyonel Teknik Çözümler</h1>
@@ -104,13 +92,4 @@
             </div>
         </div>
     </div>
-
-    <footer class="text-center">
-        <div class="container">
-            <p class="mb-0">© 2026 7/23 Bilişim Hizmetleri | Elazığ</p>
-            <p class="small text-muted">Teknolojiye Güvenilir Dokunuş.</p>
-        </div>
-    </footer>
-
-</body>
-</html>
+{% endblock %}
