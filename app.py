@@ -1,50 +1,70 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, session, redirect, url_for, flash
 from fpdf import FPDF
 from datetime import datetime
 import os
+import sqlite3
+import tempfile
 
 app = Flask(__name__)
+app.secret_key = '723_bilisim_ozel_anahtar_99'
+ADMIN_PASSWORD = "admin723_elazig"
+DB_NAME = 'teknik_servis.db'
 
-# --- PDF SINIFI YAPILANDIRMASI ---
+# --- KESİN DOSYA YOLLARI ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Hız için JPEG kullanıyoruz (image_327b56.png'de mevcut olduğunu teyit ettik)
+LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
+FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
+
+# --- VERİTABANI MOTORU ---
+def get_db_connection():
+    conn = sqlite3.connect(os.path.join(BASE_DIR, DB_NAME))
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def veritabani_hazirla():
+    with get_db_connection() as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS randevular
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                      ad TEXT, tel TEXT, adres TEXT, 
+                      marka TEXT, model TEXT, detay TEXT, 
+                      tarih TEXT)''')
+        conn.commit()
+
+veritabani_hazirla()
+
+# --- PDF MOTORU ---
 class DijitalServisFormu(FPDF):
     def header(self):
-        logo_yolu = '723_bilisim_hizmetleri_highres.png'
-        if os.path.exists(logo_yolu):
-            self.image(logo_yolu, 10, 8, 30)
-            
-        self.set_font('Arial', 'B', 16) # Not: Sistem fontu Arial olarak basitleştirildi
-        self.set_text_color(20, 40, 80)
-        self.cell(40)
-        self.cell(0, 10, '7/23 BILISIM HIZMETLERI', border=False, ln=1, align='L')
+        if os.path.exists(LOGO_PATH):
+            try:
+                self.image(LOGO_PATH, 10, 8, 33)
+            except:
+                pass
         
-        self.cell(40)
+        self.set_font('Arial', 'B', 15)
+        self.set_text_color(20, 40, 80)
+        self.cell(45)
+        self.cell(0, 10, '7/23 BILISIM HIZMETLERI', ln=1, align='L')
+        self.cell(45)
         self.set_font('Arial', 'I', 10)
-        self.cell(0, 10, 'Profesyonel Teknik Servis & Onarim Formu', border=False, ln=1, align='L')
+        self.cell(0, 5, 'Teknik Servis Onarim Formu', ln=1, align='L')
         self.ln(15)
 
-    def footer(self):
-        self.set_y(-30)
-        self.set_font('Arial', 'I', 8)
-        self.set_text_color(34, 139, 34)
-        mesaj = ("Bu belge dogayi korumak ve kagit israfini onlemek adina dijital olarak uretilmistir.")
-        self.multi_cell(0, 5, mesaj, align='C')
-        
-        self.set_y(-15)
-        self.set_text_color(128)
-        self.cell(0, 10, f'Sayfa {self.page_no()}', align='C')
-
-# --- WEB ROTALARI ---
+# --- ANA SAYFA VE KURUMSAL ROTALAR ---
 
 @app.route('/')
-def ana_sayfa():
+def ana_sayfa(): 
     return render_template('index.html')
 
 @app.route('/hizmetler')
-def hizmetler():
+def hizmetler(): 
     return render_template('hizmetler.html')
 
+# --- BLOG ROTALARI (Görseldeki dosya isimlerine göre uyarlandı) ---
+
 @app.route('/blog')
-def blog_ana_sayfa():
+def blog_ana_sayfa(): 
     return render_template('blog.html')
 
 @app.route('/blog/ssd-yukseltme')
@@ -59,43 +79,95 @@ def blog_bakim():
 def blog_ram():
     return render_template('blog_ram.html')
 
-# --- RANDEVU VE PDF İŞLEMLERİ ---
+@app.route('/blog/sivi-temasi')
+def blog_sivi_temasi():
+    return render_template('blog_sivi_temasi.html')
+
+@app.route('/blog/ekran-degisimi')
+def blog_ekran():
+    return render_template('blog_ekran.html')
+
+# --- ADMİN VE YÖNETİM ---
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form.get('password') == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('admin_paneli'))
+        flash('Şifre hatalı!', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('ana_sayfa'))
+
+@app.route('/servis-yonetim')
+def admin_paneli():
+    if not session.get('logged_in'): 
+        return redirect(url_for('login'))
+    with get_db_connection() as conn:
+        randevular = conn.execute("SELECT id, ad, tel, tarih FROM randevular ORDER BY id DESC").fetchall()
+    return render_template('admin.html', randevular=randevular)
+
+@app.route('/servis-detay/<int:id>')
+def servis_detay(id):
+    if not session.get('logged_in'): 
+        return redirect(url_for('login'))
+    with get_db_connection() as conn:
+        randevu = conn.execute("SELECT * FROM randevular WHERE id = ?", (id,)).fetchone()
+    
+    if randevu is None:
+        flash('Kayıt bulunamadı!', 'danger')
+        return redirect(url_for('admin_paneli'))
+        
+    return render_template('detay.html', r=randevu)
+
+# --- RANDEVU VE PDF OLUŞTURMA ---
 
 @app.route('/randevu-al', methods=['POST'])
 def randevu_al():
-    bilgiler = {
-        "ad": request.form.get('ad'),
-        "tel": request.form.get('tel'),
-        "adres": request.form.get('adres'),
-        "marka": request.form.get('marka'),
-        "model": request.form.get('model'),
-        "detay": request.form.get('detay')
-    }
-
-    # PDF Yapılandırması
-    pdf = DijitalServisFormu()
-    # Vercel'deki font yollarını kontrol edin
     try:
-        pdf.add_font('TurkishArial', '', "arial.ttf", unicode=True)
-        pdf.set_font('TurkishArial', '', 11)
-    except:
-        pdf.set_font('Arial', '', 11)
-    
-    pdf.add_page()
-    pdf.set_fill_color(240, 240, 240)
-    tarih_str = datetime.now().strftime('%d/%m/%Y %H:%M')
-    pdf.cell(0, 10, f"Servis Kayit Tarihi: {tarih_str}", ln=1, fill=True)
-    pdf.ln(5)
+        f = request.form
+        tarih_str = datetime.now().strftime('%d/%m/%Y %H:%M')
 
-    pdf.cell(0, 10, f"Musteri: {bilgiler['ad']}", ln=1)
-    pdf.cell(0, 10, f"Cihaz: {bilgiler['marka']} {bilgiler['model']}", ln=1)
-    pdf.multi_cell(0, 10, f"Ariza Detayi: {bilgiler['detay']}")
+        with get_db_connection() as conn:
+            conn.execute("""INSERT INTO randevular (ad, tel, adres, marka, model, detay, tarih) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                         (f['ad'], f['tel'], f['adres'], f['marka'], f['model'], f['detay'], tarih_str))
+            conn.commit()
 
-    dosya_adi = f"723_Servis_Formu_{bilgiler['ad'].replace(' ', '_')}.pdf"
-    output_path = os.path.join('/tmp', dosya_adi)
-    pdf.output(output_path)
-    
-    return send_file(output_path, as_attachment=True)
+        pdf = DijitalServisFormu()
+        pdf.add_page()
+
+        if os.path.exists(FONT_PATH):
+            pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
+            pdf.set_font('DejaVu', '', 11)
+        else:
+            pdf.set_font('Arial', '', 11)
+
+        pdf.set_fill_color(240, 240, 240)
+        pdf.cell(0, 10, f" Kayit Tarihi: {tarih_str} ", ln=1, fill=True)
+        pdf.ln(5)
+
+        icerik = (
+            f"Müşteri: {f['ad']}\nTelefon: {f['tel']}\n\n"
+            f"--- CİHAZ BİLGİLERİ ---\nMarka: {f['marka']}\nModel: {f['model']}\n\n"
+            f"--- ARIZA DETAYI ---\n{f['detay']}\n\n"
+            f"--- MÜŞTERİ ADRESİ ---\n{f['adres']}"
+        )
+        pdf.multi_cell(0, 8, icerik)
+
+        dosya_adi = f"servis_formu_{datetime.now().strftime('%H%M%S')}.pdf"
+        cikti_yolu = os.path.join(tempfile.gettempdir(), dosya_adi)
+        pdf.output(cikti_yolu)
+        
+        return send_file(cikti_yolu, as_attachment=True)
+
+    except Exception as e:
+        print(f"Hata: {e}")
+        return f"Bir hata oluştu: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
