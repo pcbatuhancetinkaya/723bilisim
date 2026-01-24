@@ -1,47 +1,38 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilgisayar Periyodik Bakım - 7/23 Bilişim</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root { --primary-blue: #0a192f; --warning-red: #d9534f; }
-        body { background-color: #fdfdfd; line-height: 1.8; }
-        .content-card { background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 50px; }
-        .warning-box { border-left: 5px solid var(--warning-red); background: #fff5f5; padding: 20px; margin: 25px 0; }
-    </style>
-</head>
-<body>
-    <div class="container mb-5">
-        <div class="content-card">
-            <a href="/blog" class="btn btn-outline-secondary btn-sm mb-4">← Blog Listesine Dön</a>
-            <h1 class="fw-bold text-dark">Isınma Sorunu ve Termal Yönetimin Önemi</h1>
-            <p class="text-muted">Cihazınızın ömrünü uzatan en kritik işlem: Periyodik Bakım.</p>
-            <hr>
+{% extends "base.html" %}
 
-            
+{% block title %}Periyodik Bakım ve Isınma Sorunları - 7/23 Bilişim{% endblock %}
 
-            <p>Bilgisayar bileşenleri çalışırken yüksek ısı üretir. Bu ısının dışarı atılamaması, sistemin kendini korumak adına performansını düşürmesine (Thermal Throttling) neden olur. Zamanla fanlarda biriken tozlar ve kuruyan termal macun, ısı iletimini tamamen kesebilir.</p>
-
-            <div class="warning-box">
-                <h5 class="fw-bold text-danger">Isınmanın Riskleri</h5>
-                <p>Aşırı ısı; anakart üzerindeki chiplerin lehim yapısının bozulmasına, ekran kartı arızalarına ve ani sistem kapanmalarına yol açarak geri dönülemez donanım hasarları oluşturabilir.</p>
-            </div>
-
-            
-
-            <h4 class="fw-bold mt-4">Bakım İşleminin Adımları:</h4>
-            <ul>
-                <li><strong>Fan ve Izgara Temizliği:</strong> Hava akışını engelleyen toz katmanlarının temizlenmesi.</li>
-                <li><strong>Termal Macun Değişimi:</strong> İşlemci ve grafik birimi üzerindeki, ısıyı soğutucuya ileten iletken sıvının yenilenmesi.</li>
-                <li><strong>Genel Statik Temizlik:</strong> Anakart üzerinde biriken ve kısa devre riski oluşturan tozların arındırılması.</li>
-            </ul>
-
-            <div class="text-center mt-5">
-                <a href="/#randevu" class="btn btn-danger btn-lg">Bakım Randevusu Oluştur</a>
-            </div>
-        </div>
+{% block content %}
+<div class="container my-5 bg-white p-5 rounded shadow">
+    <div class="mb-4">
+        <a href="/blog" class="btn btn-outline-secondary btn-sm">← Blog Listesine Dön</a>
     </div>
-</body>
-</html>
+
+    <h1 class="fw-bold mb-4">Bilgisayarınız Neden Isınır? Termal Yönetimin Önemi</h1>
+    <p class="text-muted">Cihaz performansını doğrudan etkileyen en temel unsur: Isı kontrolü.</p>
+
+    <div class="text-center my-4">
+        <img src="{{ url_for('static', filename='images/bakim_blog.jpg') }}" class="img-fluid rounded shadow" alt="Bilgisayar Isınma Sorunu ve Bakım">
+    </div>
+
+    <div class="content-body">
+        <p>Bilgisayar bileşenleri, özellikle işlemci (CPU) ve grafik birimi (GPU), yoğun çalışma altında ciddi miktarda ısı üretir. Bu ısının tahliye edilememesi, sistemin kendini korumak adına performansını düşürmesine (Thermal Throttling) neden olur.</p>
+
+        <div class="bg-light p-4 border-start border-4 border-warning my-4">
+            <h5 class="fw-bold">Neden Bakım Yapılmalı?</h5>
+            <p class="mb-0">Zamanla fanlarda biriken tozlar hava akışını keser ve işlemci üzerindeki termal macun kuruyarak iletkenliğini kaybeder. Bu durum, donanım ömrünü kısaltan en büyük etkendir.</p>
+        </div>
+
+        <h4 class="fw-bold mt-4">Periyodik Bakımın Avantajları:</h4>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item"><strong>Sessiz Çalışma:</strong> Temiz fanlar düşük devirde bile yüksek verim sağlar.</li>
+            <li class="list-group-item"><strong>Stabil Performans:</strong> Isınmaya bağlı anlık donmaların ve FPS düşüşlerinin önüne geçilir.</li>
+            <li class="list-group-item"><strong>Donanım Güvenliği:</strong> Anakart üzerindeki chiplerin yüksek ısıdan zarar görmesi engellenir.</li>
+        </ul>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="/#randevu" class="btn btn-primary btn-lg px-5">Periyodik Bakım Randevusu Al</a>
+    </div>
+</div>
+{% endblock %}
