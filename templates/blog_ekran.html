@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Ekran (Panel) Değişimi Rehberi - 7/23 Bilişim{% endblock %}
+
+{% block content %}
+<div class="container my-5 bg-white p-5 rounded shadow">
+    <div class="mb-4">
+        <a href="/blog" class="btn btn-outline-secondary btn-sm">← Blog Listesine Dön</a>
+    </div>
+
+    <h1 class="fw-bold mb-4">Laptop Ekran Değişimi: Seçenekler ve Teknik Süreç</h1>
+    
+    <div class="text-center my-4">
+        <img src="{{ url_for('static', filename='images/ekran_degisimi.jpg') }}" class="img-fluid rounded shadow" alt="Laptop Panel Değişimi ve Seçenekler">
+    </div>
+
+    <div class="content-body">
+        <p>Laptop ekranları, dış darbelere karşı en hassas bileşenlerdir. Görüntü bozulması veya kırılma durumunda panel değişimi tek kesin çözümdür. 7/23 Bilişim olarak, bu süreçte şeffaflığı önemsiyor ve bütçenize en uygun çözümü birlikte seçiyoruz.</p>
+
+        <div class="row my-5">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-primary">
+                    <div class="card-body">
+                        <h5 class="fw-bold text-primary"><i class="fas fa-check-circle"></i> Orijinal Panel</h5>
+                        <p class="small text-muted">Cihazınızın üzerindeki fabrikasyon ekranla birebir aynı özelliklere sahiptir.</p>
+                        <ul class="small">
+                            <li>En yüksek renk doygunluğu ve parlaklık.</li>
+                            <li>Fabrika standartlarında görüş açısı.</li>
+                            <li>Uzun ömürlü ve garantili kullanım.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-secondary">
+                    <div class="card-body">
+                        <h5 class="fw-bold text-secondary"><i class="fas fa-coins"></i> A+ Kalite Muadil Panel</h5>
+                        <p class="small text-muted">Ekonomik bir çözüm arayanlar için en iyi fiyat/performans seçeneğidir.</p>
+                        <ul class="small">
+                            <li>Orijinale en yakın görüntü kalitesi.</li>
+                            <li>Bütçe dostu onarım maliyeti.</li>
+                            <li>Test edilmiş, güvenilir yan sanayi ürünleri.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center fw-bold">Seçim tamamen sizin! Biz her iki seçenekte de en kaliteli parçaları temin ediyor ve profesyonel montaj yapıyoruz.</p>
+
+        <hr>
+
+        <h4 class="fw-bold mt-4">Neden Profesyonel Değişim?</h4>
+        <p>Ekran değişimi sadece bir parça söküp takma işlemi değildir. Teknik servisimizde şu detaylara dikkat ediyoruz:</p>
+        <ul>
+            <li><strong>Anakart Güvenliği:</strong> Batarya bağlantısı kesilmeden yapılan değişimlerde anakart üzerindeki görüntü entegresinin (LVDS) yanma riski yüksektir.</li>
+            <li><strong>Teknik Uyumluluk:</strong> Cihazınıza uygun olan 30 Pin veya 40 Pin bağlantı yapısını, Slim veya Standart kasa tipini hassasiyetle belirliyoruz.</li>
+            <li><strong>Sıfır Ölü Piksel Kontrolü:</strong> Yeni takılan her paneli montaj öncesi ölü piksel ve renk testlerinden geçiriyoruz.</li>
+        </ul>
+    </div>
+
+    <div class="text-center mt-5">
+        <div class="alert alert-secondary py-3">
+            Cihazınızın marka ve modelini belirterek ekran değişimi için randevu alabilirsiniz.
+        </div>
+        <a href="/#randevu" class="btn btn-primary btn-lg px-5">Ekran Değişimi için Randevu Al</a>
+    </div>
+</div>
+{% endblock %}

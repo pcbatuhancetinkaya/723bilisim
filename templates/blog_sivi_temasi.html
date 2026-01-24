@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Sıvı Teması İlk Müdahale Rehberi - 7/23 Bilişim{% endblock %}
+
+{% block content %}
+<div class="container my-5 bg-white p-5 rounded shadow">
+    <div class="mb-4">
+        <a href="/blog" class="btn btn-outline-secondary btn-sm">← Blog Listesine Dön</a>
+    </div>
+
+    <h1 class="fw-bold mb-4">Sıvı Teması Sonrası İlk Müdahale: Cihazınızı Nasıl Kurtarırsınız?</h1>
+    
+    <div class="text-center my-4">
+        <img src="{{ url_for('static', filename='images/sivi_temasi.jpg') }}" class="img-fluid rounded shadow" alt="Laptop Sıvı Teması Onarımı">
+    </div>
+
+    <div class="content-body">
+        <p>Bilgisayar üzerine dökülen sıvı (su, çay, kahve vb.), anakart üzerindeki hassas devrelerde kısa devreye ve korozyona (oksitlenme) neden olur. Müdahale hızı, cihazın kurtarılma şansını doğrudan belirler.</p>
+
+        <div class="bg-danger text-white p-4 rounded my-4">
+            <h5 class="fw-bold"><i class="fas fa-bolt"></i> KRİTİK ADIM: Enerjiyi Kesin!</h5>
+            <p class="mb-0">Sıvı döküldüğü anda cihazı kapatmaya çalışmakla vakit kaybetmeyin. Varsa fişten çekin ve bataryası çıkabilen bir modelse derhal bataryayı ayırın. Cihazın açık kalması, sıvı ile birleştiğinde devrelerin yanmasına neden olur.</p>
+        </div>
+
+        <h4 class="fw-bold mt-4">Sık Yapılan Yanlışlar:</h4>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item text-danger"><strong>Pirince Yatırmak:</strong> Pirinç nişastası cihazın içine girerek oksitlenmeyi hızlandırabilir ve temizlik sürecini zorlaştırır.</li>
+            <li class="list-group-item text-danger"><strong>Saç Kurutma Makinesi:</strong> Sıcak hava, sıvıları daha derinlere iter ve plastik aksamın (tuşlar gibi) erimesine sebep olabilir.</li>
+            <li class="list-group-item text-danger"><strong>"Kurudu" Diyerek Çalıştırmak:</strong> Dışarıdan kuru görünse de anakart altındaki sıvı günler sonra bile kısa devre yapabilir.</li>
+        </ul>
+
+        
+
+        <h4 class="fw-bold mt-4">Profesyonel Onarım Süreci</h4>
+        <p>Sıvı teması alan cihazlarda sadece kurutma işlemi yeterli değildir. **Ultrasonik temizleme** ve özel kimyasallarla anakartın oksitlerden arındırılması gerekir. 7/23 Bilişim olarak, sıvı teması alan cihazları inceleyerek hasarlı yolları onarıyoruz.</p>
+    </div>
+
+    <div class="text-center mt-5">
+        <div class="alert alert-info">
+            <strong>Acil Durum:</strong> Cihazınıza sıvı döküldüyse vakit kaybetmeden servisimize başvurun.
+        </div>
+        <a href="/#randevu" class="btn btn-primary btn-lg px-5">Acil Servis Randevusu Al</a>
+    </div>
+</div>
+{% endblock %}
