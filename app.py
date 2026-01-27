@@ -9,14 +9,21 @@ app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- VERCEL VE DOSYA YOLU AYARLARI ---
+# --- AKILLI DOSYA YOLU AYARLARI ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = '/tmp/teknik_servis.db' 
 
-# Logonun static/images içindeki yolu
-LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', '723_bilisim_hizmetleri_highres.jpeg')
-# Eğer ana dizindeki logoyu kullanmak isterseniz üstteki satırı şu şekilde değiştirin:
-# LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
+# 1. Veritabanı Yolu: Vercel'de ise /tmp, yerelde ise proje klasörünü kullanır
+if os.environ.get('VERCEL'):
+    DB_PATH = '/tmp/teknik_servis.db'
+else:
+    DB_PATH = os.path.join(BASE_DIR, 'teknik_servis.db')
+
+# 2. Logo Yolu: Önce static/images içinde arar, bulamazsa ana dizine bakar
+LOGO_NAME = '723_bilisim_hizmetleri_highres.jpeg'
+LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME)
+
+if not os.path.exists(LOGO_PATH):
+    LOGO_PATH = os.path.join(BASE_DIR, LOGO_NAME)
 
 FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
@@ -35,21 +42,20 @@ def veritabani_hazirla():
                       tarih TEXT)''')
         conn.commit()
 
+# Uygulama başlarken veritabanını kontrol et
 try:
     veritabani_hazirla()
 except Exception as e:
-    print(f"DB Hazırlama Hatası: {e}")
+    print(f"DB Hatasi: {e}")
 
 # --- PDF MOTORU ---
 class DijitalServisFormu(FPDF):
     def header(self):
-        # Logo Dosyası Kontrolü
         if os.path.exists(LOGO_PATH):
             try:
-                # 10: x koordinatı, 8: y koordinatı, 33: genişlik
                 self.image(LOGO_PATH, 10, 8, 33)
-            except Exception as e:
-                print(f"PDF Logo Hatası: {e}")
+            except:
+                pass
         
         self.set_font('Arial', 'B', 15)
         self.set_text_color(20, 40, 80)
@@ -60,14 +66,13 @@ class DijitalServisFormu(FPDF):
         self.cell(0, 5, 'Teknik Servis Onarim Formu', ln=1, align='L')
         self.ln(15)
 
-# --- ANA SAYFA VE KURUMSAL ROTALAR ---
+# --- ROTALAR ---
 @app.route('/')
 def ana_sayfa(): return render_template('index.html')
 
 @app.route('/hizmetler')
 def hizmetler(): return render_template('hizmetler.html')
 
-# --- BLOG ROTALARI ---
 @app.route('/blog')
 def blog_ana_sayfa(): return render_template('blog.html')
 
@@ -86,7 +91,6 @@ def blog_sivi_temasi(): return render_template('blog_sivi_temasi.html')
 @app.route('/blog/ekran-degisimi')
 def blog_ekran(): return render_template('blog_ekran.html')
 
-# --- ADMİN VE YÖNETİM ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -118,7 +122,6 @@ def servis_detay(id):
         return redirect(url_for('admin_paneli'))
     return render_template('detay.html', r=randevu)
 
-# --- RANDEVU VE PDF OLUŞTURMA ---
 @app.route('/randevu-al', methods=['POST'])
 def randevu_al():
     try:
