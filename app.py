@@ -9,22 +9,24 @@ app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- VERCEL ÖZEL YOL AYARLARI ---
-# Vercel'de sadece /tmp dizinine yazma izni vardır
-DB_PATH = '/tmp/teknik_servis.db' 
+# --- VERCEL VE DOSYA YOLU AYARLARI ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
+DB_PATH = '/tmp/teknik_servis.db' 
+
+# Logonun static/images içindeki yolu
+LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', '723_bilisim_hizmetleri_highres.jpeg')
+# Eğer ana dizindeki logoyu kullanmak isterseniz üstteki satırı şu şekilde değiştirin:
+# LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
+
 FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
 # --- VERİTABANI MOTORU ---
 def get_db_connection():
-    # Veritabanı dosyasını yazılabilir /tmp dizininde açar
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 def veritabani_hazirla():
-    # Tabloları /tmp içindeki dosyada oluşturur
     with get_db_connection() as conn:
         conn.execute('''CREATE TABLE IF NOT EXISTS randevular
                      (id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -33,7 +35,6 @@ def veritabani_hazirla():
                       tarih TEXT)''')
         conn.commit()
 
-# Vercel cold-start sırasında veritabanını hazırlar
 try:
     veritabani_hazirla()
 except Exception as e:
@@ -42,11 +43,13 @@ except Exception as e:
 # --- PDF MOTORU ---
 class DijitalServisFormu(FPDF):
     def header(self):
+        # Logo Dosyası Kontrolü
         if os.path.exists(LOGO_PATH):
             try:
+                # 10: x koordinatı, 8: y koordinatı, 33: genişlik
                 self.image(LOGO_PATH, 10, 8, 33)
-            except:
-                pass
+            except Exception as e:
+                print(f"PDF Logo Hatası: {e}")
         
         self.set_font('Arial', 'B', 15)
         self.set_text_color(20, 40, 80)
@@ -131,7 +134,6 @@ def randevu_al():
         pdf = DijitalServisFormu()
         pdf.add_page()
 
-        # Latin-1 hatasını engellemek için uni=True parametresi kritiktir
         if os.path.exists(FONT_PATH):
             pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
