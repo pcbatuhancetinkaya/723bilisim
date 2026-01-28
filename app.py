@@ -6,28 +6,29 @@ import sqlite3
 import psycopg2 
 from psycopg2 import extras
 import tempfile
+import shutil # Dosya kopyalamak için eklendi
 
 app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- %100 GÜVENLİ YOL AYARI ---
-# os.getcwd() o anki çalışma dizinini (Vercel'de /var/task) alır. 
-# Bu yöntem Windows yollarının karışmasını tamamen engeller.
+# --- KESİN YOL AYARLARI ---
 BASE_DIR = os.getcwd()
 
-# Sadece istediğin .jpeg logo ve font adı
+# Sadece istediğin .jpeg logosu
 LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
-FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
+# Ana font dosyası
+ORIGINAL_FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
-# --- VERİTABANI ---
+# --- VERİTABANI BAĞLANTISI ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db_connection():
     if DATABASE_URL:
         return psycopg2.connect(DATABASE_URL)
     else:
-        conn = sqlite3.connect(os.path.join(BASE_DIR, 'teknik_servis.db'))
+        db_file = os.path.join(BASE_DIR, 'teknik_servis.db')
+        conn = sqlite3.connect(db_file)
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -54,7 +55,6 @@ except Exception as e:
 # --- PDF MOTORU ---
 class DijitalServisFormu(FPDF):
     def header(self):
-        # Sadece JPEG dosyasını kontrol eder
         if os.path.exists(LOGO_PATH):
             try:
                 self.image(LOGO_PATH, 10, 8, 33)
@@ -155,9 +155,13 @@ def randevu_al():
         pdf = DijitalServisFormu()
         pdf.add_page()
         
-        # Kesin font yolu kontrolü
-        if os.path.exists(FONT_PATH):
-            pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
+        # VERCEL HATASI ÇÖZÜMÜ: Fontu yazılabilir olan /tmp dizinine kopyalıyoruz
+        TMP_FONT_PATH = os.path.join(tempfile.gettempdir(), 'DejaVuSans.ttf')
+        if not os.path.exists(TMP_FONT_PATH) and os.path.exists(ORIGINAL_FONT_PATH):
+            shutil.copy(ORIGINAL_FONT_PATH, TMP_FONT_PATH)
+
+        if os.path.exists(TMP_FONT_PATH):
+            pdf.add_font('DejaVu', '', TMP_FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
         else:
             pdf.set_font('Arial', '', 11)
@@ -173,8 +177,7 @@ def randevu_al():
         return send_file(cikti_yolu, as_attachment=True)
 
     except Exception as e:
-        # Hata anında tam dosya yolunu yazdırır ki sorunu görelim
-        return f"Hata olustu! Aranan Font Yolu: {FONT_PATH} | Gercek Hata: {str(e)}", 500
+        return f"Hata olustu! Aranan Font: {ORIGINAL_FONT_PATH} | Hata: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
