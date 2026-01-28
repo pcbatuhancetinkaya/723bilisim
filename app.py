@@ -11,25 +11,23 @@ app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- KESİN VE TEK TİP YOL AYARLARI ---
-# Bu satır kodun o an çalıştığı yeri bulur ve Windows yolunu tamamen devre dışı bırakır
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# --- %100 GÜVENLİ YOL AYARI ---
+# os.getcwd() o anki çalışma dizinini (Vercel'de /var/task) alır. 
+# Bu yöntem Windows yollarının karışmasını tamamen engeller.
+BASE_DIR = os.getcwd()
 
-# Sadece istediğin .jpeg logo ve font yolu
+# Sadece istediğin .jpeg logo ve font adı
 LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
 FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
-# --- VERİTABANI BAĞLANTISI ---
+# --- VERİTABANI ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db_connection():
     if DATABASE_URL:
-        # Supabase Pooler (Port 6543)
         return psycopg2.connect(DATABASE_URL)
     else:
-        # Yerel SQLite
-        db_file = os.path.join(BASE_DIR, 'teknik_servis.db')
-        conn = sqlite3.connect(db_file)
+        conn = sqlite3.connect(os.path.join(BASE_DIR, 'teknik_servis.db'))
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -53,7 +51,7 @@ try:
 except Exception as e:
     print(f"DB Hatasi: {e}")
 
-# --- PDF SINIFI ---
+# --- PDF MOTORU ---
 class DijitalServisFormu(FPDF):
     def header(self):
         # Sadece JPEG dosyasını kontrol eder
@@ -157,7 +155,7 @@ def randevu_al():
         pdf = DijitalServisFormu()
         pdf.add_page()
         
-        # Kesin font yolu kontrolü (C:\ araması yapmaz)
+        # Kesin font yolu kontrolü
         if os.path.exists(FONT_PATH):
             pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
@@ -175,8 +173,8 @@ def randevu_al():
         return send_file(cikti_yolu, as_attachment=True)
 
     except Exception as e:
-        print(f"Hata detayi: {e}")
-        return f"Bir hata olustu: {str(e)}", 500
+        # Hata anında tam dosya yolunu yazdırır ki sorunu görelim
+        return f"Hata olustu! Aranan Font Yolu: {FONT_PATH} | Gercek Hata: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
