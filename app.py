@@ -3,7 +3,7 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 import sqlite3
-import psycopg2
+import psycopg2 
 from psycopg2 import extras
 import tempfile
 
@@ -12,29 +12,18 @@ app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
 # --- KESİN VE DİNAMİK YOL AYARLARI ---
-# BASE_DIR projenin o an çalıştığı klasörü bulur (Windows veya Linux fark etmez)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #
 
-# Font Yolu: Sadece dosya adını kullanarak BASE_DIR ile birleştiriyoruz
-FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
+# Font Yolu
+FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf') #
 
-# Logo Kontrolü: GitHub'da .png göründüğü için her iki uzantıyı da kontrol ediyoruz
-LOGO_NAME_PNG = '723_bilisim_hizmetleri_highres.png'
-LOGO_NAME_JPEG = '723_bilisim_hizmetleri_highres.jpeg'
+# Logo Kontrolü: Sadece JPEG odaklı hale getirildi
+LOGO_NAME = '723_bilisim_hizmetleri_highres.jpeg'
+LOGO_PATH = os.path.join(BASE_DIR, LOGO_NAME)
 
-# Önce .png sonra .jpeg, hem static içinde hem ana dizinde ara
-LOGO_PATH = None
-olasi_yollar = [
-    os.path.join(BASE_DIR, LOGO_NAME_PNG),
-    os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME_PNG),
-    os.path.join(BASE_DIR, LOGO_NAME_JPEG),
-    os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME_JPEG)
-]
-
-for yol in olasi_yollar:
-    if os.path.exists(yol):
-        LOGO_PATH = yol
-        break
+# Eğer ana dizinde yoksa static klasörüne bak
+if not os.path.exists(LOGO_PATH):
+    LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME)
 
 # --- VERİTABANI BAĞLANTISI ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -72,6 +61,7 @@ except Exception as e:
 # --- PDF SINIFI ---
 class DijitalServisFormu(FPDF):
     def header(self):
+        # Sadece mevcut JPEG logosunu basar
         if LOGO_PATH and os.path.exists(LOGO_PATH):
             try:
                 self.image(LOGO_PATH, 10, 8, 33)
