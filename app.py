@@ -11,28 +11,23 @@ app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- KESİN VE DİNAMİK YOL AYARLARI ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #
+# --- KESİN VE TEK TİP YOL AYARLARI ---
+# Bu satır kodun o an çalıştığı yeri bulur ve Windows yolunu tamamen devre dışı bırakır
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Font Yolu
-FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf') #
-
-# Logo Kontrolü: Sadece JPEG odaklı hale getirildi
-LOGO_NAME = '723_bilisim_hizmetleri_highres.jpeg'
-LOGO_PATH = os.path.join(BASE_DIR, LOGO_NAME)
-
-# Eğer ana dizinde yoksa static klasörüne bak
-if not os.path.exists(LOGO_PATH):
-    LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME)
+# Sadece istediğin .jpeg logo ve font yolu
+LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
+FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
 # --- VERİTABANI BAĞLANTISI ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db_connection():
     if DATABASE_URL:
-        # Supabase Pooler (Port 6543) üzerinden bağlantı
+        # Supabase Pooler (Port 6543)
         return psycopg2.connect(DATABASE_URL)
     else:
+        # Yerel SQLite
         db_file = os.path.join(BASE_DIR, 'teknik_servis.db')
         conn = sqlite3.connect(db_file)
         conn.row_factory = sqlite3.Row
@@ -56,13 +51,13 @@ def veritabani_hazirla():
 try:
     veritabani_hazirla()
 except Exception as e:
-    print(f"DB Hazirlama Hatasi: {e}")
+    print(f"DB Hatasi: {e}")
 
 # --- PDF SINIFI ---
 class DijitalServisFormu(FPDF):
     def header(self):
-        # Sadece mevcut JPEG logosunu basar
-        if LOGO_PATH and os.path.exists(LOGO_PATH):
+        # Sadece JPEG dosyasını kontrol eder
+        if os.path.exists(LOGO_PATH):
             try:
                 self.image(LOGO_PATH, 10, 8, 33)
             except:
@@ -162,7 +157,7 @@ def randevu_al():
         pdf = DijitalServisFormu()
         pdf.add_page()
         
-        # Kesin font yolu kontrolü
+        # Kesin font yolu kontrolü (C:\ araması yapmaz)
         if os.path.exists(FONT_PATH):
             pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
