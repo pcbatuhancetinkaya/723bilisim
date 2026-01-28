@@ -2,6 +2,10 @@
 
 {% block title %}Ekran (Panel) Değişimi Rehberi - 7/23 Bilişim{% endblock %}
 
+{% block head %}
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container my-5 bg-white p-5 rounded shadow">
     <div class="mb-4">
@@ -66,4 +70,5 @@
         <a href="/#randevu" class="btn btn-primary btn-lg px-5">Ekran Değişimi için Randevu Al</a>
     </div>
 </div>
+
 {% endblock %}
