@@ -48,24 +48,42 @@ try:
 except Exception as e:
     print(f"DB Hatasi: {e}")
 
-# --- PDF MOTORU ---
+# --- PDF MOTORU (TABLO VE KURUMSAL TASARIM) ---
 class DijitalServisFormu(FPDF):
     def header(self):
+        # Logo Ekleme
         if os.path.exists(LOGO_PATH):
             try:
                 self.image(LOGO_PATH, 10, 8, 33)
             except:
                 pass
         
-        # Başlık ve Kurumsal İsim
-        self.set_font('Arial', 'B', 15)
+        # Üst Başlık (Türkçe Karakter Destekli)
+        # Not: Header içinde DejaVu kullanabilmek için fontu add_page öncesi yükleyeceğiz
+        try:
+            self.set_font('DejaVu', '', 16)
+        except:
+            self.set_font('Arial', 'B', 15)
+            
         self.set_text_color(20, 40, 80)
         self.cell(45)
-        self.cell(0, 10, '7/23 BILISIM HIZMETLERI', ln=1, align='L')
+        self.cell(0, 10, '7/23 BİLİŞİM HİZMETLERİ', ln=1, align='L') #
         self.cell(45)
-        self.set_font('Arial', 'I', 10)
-        self.cell(0, 5, 'Teknik Servis Onarim Formu', ln=1, align='L')
-        self.ln(15)
+        
+        try:
+            self.set_font('DejaVu', '', 10)
+        except:
+            self.set_font('Arial', 'I', 10)
+            
+        self.cell(0, 5, 'Teknik Servis Onarım Formu', ln=1, align='L') #
+        self.ln(20)
+
+    # Tablo Satırı Oluşturma Yardımcısı
+    def tablo_satiri(self, etiket, veri):
+        self.set_fill_color(245, 245, 245)
+        self.set_font('DejaVu', '', 10)
+        self.cell(50, 10, f" {etiket}", border=1, fill=True)
+        self.cell(0, 10, f" {veri}", border=1, ln=1)
 
 # --- ROTALAR ---
 @app.route('/')
@@ -98,7 +116,7 @@ def login():
         if request.form.get('password') == ADMIN_PASSWORD:
             session['logged_in'] = True
             return redirect(url_for('admin_paneli'))
-        flash('Sifre hatali!', 'danger')
+        flash('Şifre hatalı!', 'danger')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -134,7 +152,7 @@ def servis_detay(id):
     cur.close()
     conn.close()
     if r is None:
-        flash('Kayit bulunamadi!', 'danger')
+        flash('Kayıt bulunamadı!', 'danger')
         return redirect(url_for('admin_paneli'))
     return render_template('detay.html', r=r)
 
@@ -154,36 +172,48 @@ def randevu_al():
         conn.close()
 
         pdf = DijitalServisFormu()
-        pdf.add_page()
         
-        # VERCEL TÜRKÇE KARAKTER ÇÖZÜMÜ: Fontu yazılabilir olan /tmp dizinine kopyalıyoruz
+        # Font Hazırlığı (Vercel Çözümü)
         TMP_FONT_PATH = os.path.join(tempfile.gettempdir(), 'DejaVuSans.ttf')
         if not os.path.exists(TMP_FONT_PATH) and os.path.exists(ORIGINAL_FONT_PATH):
             shutil.copy(ORIGINAL_FONT_PATH, TMP_FONT_PATH)
 
         if os.path.exists(TMP_FONT_PATH):
             pdf.add_font('DejaVu', '', TMP_FONT_PATH, uni=True)
-            pdf.set_font('DejaVu', '', 11)
-        else:
-            pdf.set_font('Arial', '', 11)
+        
+        pdf.add_page() # Header burada tetiklenir
 
-        pdf.set_fill_color(240, 240, 240)
-        pdf.cell(0, 10, f" Kayıt Tarihi: {tarih_str} ", ln=1, fill=True)
+        # --- KURUMSAL TABLO TASARIMI ---
+        
+        # Kayıt Tarihi Şeridi
+        pdf.set_fill_color(20, 40, 80)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font('DejaVu', '', 11)
+        pdf.cell(0, 10, f" Kayıt Tarihi: {tarih_str}", ln=1, fill=True)
+        pdf.set_text_color(0, 0, 0)
         pdf.ln(5)
 
-        # ESKİ DÜZENLİ FORM YAPISI GERİ GELDİ
-        icerik = (
-            f"Müşteri: {f['ad']}\n"
-            f"Telefon: {f['tel']}\n\n"
-            f"--- CİHAZ BİLGİLERİ ---\n"
-            f"Marka: {f['marka']}\n"
-            f"Model: {f['model']}\n\n"
-            f"--- ARIZA DETAYI ---\n"
-            f"{f['detay']}\n\n"
-            f"--- MÜŞTERİ ADRESİ ---\n"
-            f"{f['adres']}"
-        )
-        pdf.multi_cell(0, 8, icerik)
+        # Müşteri Bilgileri Tablosu
+        pdf.set_font('DejaVu', '', 11)
+        pdf.cell(0, 10, " MÜŞTERİ BİLGİLERİ", ln=1) #
+        pdf.tablo_satiri("Ad Soyad", f['ad'])
+        pdf.tablo_satiri("Telefon", f['tel'])
+        pdf.ln(5)
+
+        # Cihaz Bilgileri Tablosu
+        pdf.cell(0, 10, " CİHAZ BİLGİLERİ", ln=1) #
+        pdf.tablo_satiri("Marka", f['marka'])
+        pdf.tablo_satiri("Model", f['model'])
+        pdf.ln(5)
+
+        # Arıza ve Adres Detayı
+        pdf.cell(0, 10, " ARIZA VE ADRES DETAYLARI", ln=1) #
+        pdf.set_fill_color(245, 245, 245)
+        pdf.cell(50, 20, " Arıza Özeti", border=1, fill=True)
+        pdf.multi_cell(0, 10, f" {f['detay']}", border=1)
+        
+        pdf.cell(50, 20, " Müşteri Adresi", border=1, fill=True)
+        pdf.multi_cell(0, 10, f" {f['adres']}", border=1)
 
         dosya_adi = f"servis_formu_{datetime.now().strftime('%H%M%S')}.pdf"
         cikti_yolu = os.path.join(tempfile.gettempdir(), dosya_adi)
