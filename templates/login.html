@@ -2,6 +2,10 @@
 
 {% block title %}Yönetici Girişi | 7/23 Bilişim{% endblock %}
 
+{% block head %}
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container my-5 py-5">
     <div class="row justify-content-center">
@@ -31,4 +35,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
