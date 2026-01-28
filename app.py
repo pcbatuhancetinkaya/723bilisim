@@ -11,32 +11,39 @@ app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- KESİN DOSYA YOLU AYARLARI ---
-# BASE_DIR projenin ana klasörünü (Vercel'de /var/task) bulur
+# --- KESİN VE DİNAMİK YOL AYARLARI ---
+# BASE_DIR projenin o an çalıştığı klasörü bulur (Windows veya Linux fark etmez)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Font ve Logo yolları BASE_DIR üzerinden dinamik oluşturulur
-# ÖNEMLİ: DejaVuSans.ttf dosyası GitHub'da app.py ile aynı klasörde olmalıdır
+# Font Yolu: Sadece dosya adını kullanarak BASE_DIR ile birleştiriyoruz
 FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
-LOGO_NAME = '723_bilisim_hizmetleri_highres.jpeg'
-LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME)
+# Logo Kontrolü: GitHub'da .png göründüğü için her iki uzantıyı da kontrol ediyoruz
+LOGO_NAME_PNG = '723_bilisim_hizmetleri_highres.png'
+LOGO_NAME_JPEG = '723_bilisim_hizmetleri_highres.jpeg'
 
-# Logo klasörde yoksa ana dizine bak
-if not os.path.exists(LOGO_PATH):
-    LOGO_PATH = os.path.join(BASE_DIR, LOGO_NAME)
+# Önce .png sonra .jpeg, hem static içinde hem ana dizinde ara
+LOGO_PATH = None
+olasi_yollar = [
+    os.path.join(BASE_DIR, LOGO_NAME_PNG),
+    os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME_PNG),
+    os.path.join(BASE_DIR, LOGO_NAME_JPEG),
+    os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME_JPEG)
+]
+
+for yol in olasi_yollar:
+    if os.path.exists(yol):
+        LOGO_PATH = yol
+        break
 
 # --- VERİTABANI BAĞLANTISI ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db_connection():
     if DATABASE_URL:
-        # PostgreSQL (Vercel/Supabase)
-        # Not: "Cannot assign requested address" hatası almamak için 
-        # Vercel panelinde Pooler (6543) adresi tanımlanmış olmalıdır
+        # Supabase Pooler (Port 6543) üzerinden bağlantı
         return psycopg2.connect(DATABASE_URL)
     else:
-        # Yerel SQLite (Windows/Mac) - Hata almamak için güvenli yol
         db_file = os.path.join(BASE_DIR, 'teknik_servis.db')
         conn = sqlite3.connect(db_file)
         conn.row_factory = sqlite3.Row
@@ -47,16 +54,12 @@ def veritabani_hazirla():
     cur = conn.cursor()
     if DATABASE_URL:
         cur.execute('''CREATE TABLE IF NOT EXISTS randevular
-                     (id SERIAL PRIMARY KEY, 
-                      ad TEXT, tel TEXT, adres TEXT, 
-                      marka TEXT, model TEXT, detay TEXT, 
-                      tarih TEXT)''')
+                     (id SERIAL PRIMARY KEY, ad TEXT, tel TEXT, adres TEXT, 
+                      marka TEXT, model TEXT, detay TEXT, tarih TEXT)''')
     else:
         cur.execute('''CREATE TABLE IF NOT EXISTS randevular
-                     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                      ad TEXT, tel TEXT, adres TEXT, 
-                      marka TEXT, model TEXT, detay TEXT, 
-                      tarih TEXT)''')
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT, ad TEXT, tel TEXT, adres TEXT, 
+                      marka TEXT, model TEXT, detay TEXT, tarih TEXT)''')
     conn.commit()
     cur.close()
     conn.close()
@@ -64,12 +67,12 @@ def veritabani_hazirla():
 try:
     veritabani_hazirla()
 except Exception as e:
-    print(f"DB Hazırlama Hatası: {e}")
+    print(f"DB Hazirlama Hatasi: {e}")
 
 # --- PDF SINIFI ---
 class DijitalServisFormu(FPDF):
     def header(self):
-        if os.path.exists(LOGO_PATH):
+        if LOGO_PATH and os.path.exists(LOGO_PATH):
             try:
                 self.image(LOGO_PATH, 10, 8, 33)
             except:
@@ -111,7 +114,7 @@ def login():
         if request.form.get('password') == ADMIN_PASSWORD:
             session['logged_in'] = True
             return redirect(url_for('admin_paneli'))
-        flash('Şifre hatalı!', 'danger')
+        flash('Sifre hatali!', 'danger')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -147,7 +150,7 @@ def servis_detay(id):
     cur.close()
     conn.close()
     if r is None:
-        flash('Kayıt bulunamadı!', 'danger')
+        flash('Kayit bulunamadi!', 'danger')
         return redirect(url_for('admin_paneli'))
     return render_template('detay.html', r=r)
 
@@ -168,7 +171,8 @@ def randevu_al():
 
         pdf = DijitalServisFormu()
         pdf.add_page()
-        # Font kontrolü ve ekleme
+        
+        # Kesin font yolu kontrolü
         if os.path.exists(FONT_PATH):
             pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
@@ -178,7 +182,7 @@ def randevu_al():
         pdf.set_fill_color(240, 240, 240)
         pdf.cell(0, 10, f" Kayit Tarihi: {tarih_str} ", ln=1, fill=True)
         pdf.ln(5)
-        pdf.multi_cell(0, 8, f"Müşteri: {f['ad']}\nTelefon: {f['tel']}\nCihaz: {f['marka']} {f['model']}\nArıza: {f['detay']}")
+        pdf.multi_cell(0, 8, f"Musteri: {f['ad']}\nTelefon: {f['tel']}\nCihaz: {f['marka']} {f['model']}\nAriza: {f['detay']}")
 
         dosya_adi = f"servis_formu_{datetime.now().strftime('%H%M%S')}.pdf"
         cikti_yolu = os.path.join(tempfile.gettempdir(), dosya_adi)
@@ -186,8 +190,8 @@ def randevu_al():
         return send_file(cikti_yolu, as_attachment=True)
 
     except Exception as e:
-        print(f"Hata detayı: {e}")
-        return f"Bir hata oluştu: {str(e)}", 500
+        print(f"Hata detayi: {e}")
+        return f"Bir hata olustu: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
