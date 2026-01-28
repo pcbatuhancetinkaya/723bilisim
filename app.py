@@ -3,7 +3,7 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 import sqlite3
-import psycopg2  # PostgreSQL için eklendi
+import psycopg2
 from psycopg2 import extras
 import tempfile
 
@@ -11,19 +11,34 @@ app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
-# --- AKILLI DOSYA VE VERİTABANI AYARLARI ---
+# --- KESİN DOSYA YOLU AYARLARI ---
+# BASE_DIR projenin ana klasörünü (Vercel'de /var/task) bulur
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Vercel'de tanımladığın DATABASE_URL'i kontrol eder
+
+# Font ve Logo yolları BASE_DIR üzerinden dinamik oluşturulur
+# ÖNEMLİ: DejaVuSans.ttf dosyası GitHub'da app.py ile aynı klasörde olmalıdır
+FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
+
+LOGO_NAME = '723_bilisim_hizmetleri_highres.jpeg'
+LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME)
+
+# Logo klasörde yoksa ana dizine bak
+if not os.path.exists(LOGO_PATH):
+    LOGO_PATH = os.path.join(BASE_DIR, LOGO_NAME)
+
+# --- VERİTABANI BAĞLANTISI ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db_connection():
     if DATABASE_URL:
-        # PostgreSQL (Vercel/Supabase) bağlantısı
-        conn = psycopg2.connect(DATABASE_URL)
-        return conn
+        # PostgreSQL (Vercel/Supabase)
+        # Not: "Cannot assign requested address" hatası almamak için 
+        # Vercel panelinde Pooler (6543) adresi tanımlanmış olmalıdır
+        return psycopg2.connect(DATABASE_URL)
     else:
-        # Yerel SQLite bağlantısı
-        conn = sqlite3.connect(os.path.join(BASE_DIR, 'teknik_servis.db'))
+        # Yerel SQLite (Windows/Mac) - Hata almamak için güvenli yol
+        db_file = os.path.join(BASE_DIR, 'teknik_servis.db')
+        conn = sqlite3.connect(db_file)
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -31,14 +46,12 @@ def veritabani_hazirla():
     conn = get_db_connection()
     cur = conn.cursor()
     if DATABASE_URL:
-        # PostgreSQL uyumlu tablo yapısı
         cur.execute('''CREATE TABLE IF NOT EXISTS randevular
                      (id SERIAL PRIMARY KEY, 
                       ad TEXT, tel TEXT, adres TEXT, 
                       marka TEXT, model TEXT, detay TEXT, 
                       tarih TEXT)''')
     else:
-        # SQLite uyumlu tablo yapısı
         cur.execute('''CREATE TABLE IF NOT EXISTS randevular
                      (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                       ad TEXT, tel TEXT, adres TEXT, 
@@ -48,25 +61,19 @@ def veritabani_hazirla():
     cur.close()
     conn.close()
 
-# Logo ve Font Ayarları (Eski çalışan yapın korunmuştur)
-LOGO_NAME = '723_bilisim_hizmetleri_highres.jpeg'
-LOGO_PATH = os.path.join(BASE_DIR, 'static', 'images', LOGO_NAME)
-if not os.path.exists(LOGO_PATH):
-    LOGO_PATH = os.path.join(BASE_DIR, LOGO_NAME)
-
-FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
-
 try:
     veritabani_hazirla()
 except Exception as e:
-    print(f"DB Hatasi: {e}")
+    print(f"DB Hazırlama Hatası: {e}")
 
-# --- PDF MOTORU ---
+# --- PDF SINIFI ---
 class DijitalServisFormu(FPDF):
     def header(self):
         if os.path.exists(LOGO_PATH):
-            try: self.image(LOGO_PATH, 10, 8, 33)
-            except: pass
+            try:
+                self.image(LOGO_PATH, 10, 8, 33)
+            except:
+                pass
         self.set_font('Arial', 'B', 15)
         self.set_text_color(20, 40, 80)
         self.cell(45)
@@ -116,16 +123,13 @@ def logout():
 def admin_paneli():
     if not session.get('logged_in'): return redirect(url_for('login'))
     conn = get_db_connection()
-    # PostgreSQL için DictCursor kullanarak SQLite.Row davranışını taklit ediyoruz
     cur = conn.cursor(cursor_factory=extras.RealDictCursor) if DATABASE_URL else conn.cursor()
-    
     query = "SELECT id, ad, tel, tarih FROM randevular ORDER BY id DESC"
     if DATABASE_URL:
         cur.execute(query)
         randevular = cur.fetchall()
     else:
         randevular = conn.execute(query).fetchall()
-    
     cur.close()
     conn.close()
     return render_template('admin.html', randevular=randevular)
@@ -135,13 +139,11 @@ def servis_detay(id):
     if not session.get('logged_in'): return redirect(url_for('login'))
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=extras.RealDictCursor) if DATABASE_URL else conn.cursor()
-    
     if DATABASE_URL:
         cur.execute("SELECT * FROM randevular WHERE id = %s", (id,))
         r = cur.fetchone()
     else:
         r = conn.execute("SELECT * FROM randevular WHERE id = ?", (id,)).fetchone()
-    
     cur.close()
     conn.close()
     if r is None:
@@ -157,22 +159,21 @@ def randevu_al():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # SQL yer tutucuları (Postgres: %s, SQLite: ?)
         placeholder = "%s" if DATABASE_URL else "?"
         query = f"INSERT INTO randevular (ad, tel, adres, marka, model, detay, tarih) VALUES ({','.join([placeholder]*7)})"
-        
         cur.execute(query, (f['ad'], f['tel'], f['adres'], f['marka'], f['model'], f['detay'], tarih_str))
         conn.commit()
         cur.close()
         conn.close()
 
-        # PDF Oluşturma Bölümü (Aynı kaldı)
         pdf = DijitalServisFormu()
         pdf.add_page()
+        # Font kontrolü ve ekleme
         if os.path.exists(FONT_PATH):
             pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
             pdf.set_font('DejaVu', '', 11)
-        else: pdf.set_font('Arial', '', 11)
+        else:
+            pdf.set_font('Arial', '', 11)
 
         pdf.set_fill_color(240, 240, 240)
         pdf.cell(0, 10, f" Kayit Tarihi: {tarih_str} ", ln=1, fill=True)
@@ -185,7 +186,7 @@ def randevu_al():
         return send_file(cikti_yolu, as_attachment=True)
 
     except Exception as e:
-        print(f"Hata: {e}")
+        print(f"Hata detayı: {e}")
         return f"Bir hata oluştu: {str(e)}", 500
 
 if __name__ == '__main__':
