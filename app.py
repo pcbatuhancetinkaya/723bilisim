@@ -6,7 +6,7 @@ import sqlite3
 import psycopg2 
 from psycopg2 import extras
 import tempfile
-import shutil # Dosya kopyalamak için eklendi
+import shutil
 
 app = Flask(__name__)
 app.secret_key = '723_bilisim_ozel_anahtar_99'
@@ -14,10 +14,7 @@ ADMIN_PASSWORD = "admin723_elazig"
 
 # --- KESİN YOL AYARLARI ---
 BASE_DIR = os.getcwd()
-
-# Sadece istediğin .jpeg logosu
 LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
-# Ana font dosyası
 ORIGINAL_FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
 # --- VERİTABANI BAĞLANTISI ---
@@ -27,8 +24,7 @@ def get_db_connection():
     if DATABASE_URL:
         return psycopg2.connect(DATABASE_URL)
     else:
-        db_file = os.path.join(BASE_DIR, 'teknik_servis.db')
-        conn = sqlite3.connect(db_file)
+        conn = sqlite3.connect(os.path.join(BASE_DIR, 'teknik_servis.db'))
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -60,10 +56,15 @@ class DijitalServisFormu(FPDF):
                 self.image(LOGO_PATH, 10, 8, 33)
             except:
                 pass
+        
+        # Başlık ve Kurumsal İsim
         self.set_font('Arial', 'B', 15)
         self.set_text_color(20, 40, 80)
         self.cell(45)
         self.cell(0, 10, '7/23 BILISIM HIZMETLERI', ln=1, align='L')
+        self.cell(45)
+        self.set_font('Arial', 'I', 10)
+        self.cell(0, 5, 'Teknik Servis Onarim Formu', ln=1, align='L')
         self.ln(15)
 
 # --- ROTALAR ---
@@ -155,7 +156,7 @@ def randevu_al():
         pdf = DijitalServisFormu()
         pdf.add_page()
         
-        # VERCEL HATASI ÇÖZÜMÜ: Fontu yazılabilir olan /tmp dizinine kopyalıyoruz
+        # VERCEL TÜRKÇE KARAKTER ÇÖZÜMÜ: Fontu yazılabilir olan /tmp dizinine kopyalıyoruz
         TMP_FONT_PATH = os.path.join(tempfile.gettempdir(), 'DejaVuSans.ttf')
         if not os.path.exists(TMP_FONT_PATH) and os.path.exists(ORIGINAL_FONT_PATH):
             shutil.copy(ORIGINAL_FONT_PATH, TMP_FONT_PATH)
@@ -167,9 +168,22 @@ def randevu_al():
             pdf.set_font('Arial', '', 11)
 
         pdf.set_fill_color(240, 240, 240)
-        pdf.cell(0, 10, f" Kayit Tarihi: {tarih_str} ", ln=1, fill=True)
+        pdf.cell(0, 10, f" Kayıt Tarihi: {tarih_str} ", ln=1, fill=True)
         pdf.ln(5)
-        pdf.multi_cell(0, 8, f"Musteri: {f['ad']}\nTelefon: {f['tel']}\nCihaz: {f['marka']} {f['model']}\nAriza: {f['detay']}")
+
+        # ESKİ DÜZENLİ FORM YAPISI GERİ GELDİ
+        icerik = (
+            f"Müşteri: {f['ad']}\n"
+            f"Telefon: {f['tel']}\n\n"
+            f"--- CİHAZ BİLGİLERİ ---\n"
+            f"Marka: {f['marka']}\n"
+            f"Model: {f['model']}\n\n"
+            f"--- ARIZA DETAYI ---\n"
+            f"{f['detay']}\n\n"
+            f"--- MÜŞTERİ ADRESİ ---\n"
+            f"{f['adres']}"
+        )
+        pdf.multi_cell(0, 8, icerik)
 
         dosya_adi = f"servis_formu_{datetime.now().strftime('%H%M%S')}.pdf"
         cikti_yolu = os.path.join(tempfile.gettempdir(), dosya_adi)
@@ -177,7 +191,7 @@ def randevu_al():
         return send_file(cikti_yolu, as_attachment=True)
 
     except Exception as e:
-        return f"Hata olustu! Aranan Font: {ORIGINAL_FONT_PATH} | Hata: {str(e)}", 500
+        return f"Bir hata oluştu: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
