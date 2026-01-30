@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /servis-yonetim
+Disallow: /servis-detay/
+Disallow: /login
+
+Sitemap: https://723bilisimhizmetleri.com.tr/sitemap.xml
