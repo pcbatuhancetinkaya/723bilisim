@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, send_file, session, redirect, url_for, flash
+from flask import Flask, render_template, request, send_file, session, redirect, url_for, flash, send_from_directory
 from fpdf import FPDF
-from datetime import datetime, timedelta  # Zaman dilimi düzeltmesi için eklendi
+from datetime import datetime, timedelta
 import os
 import sqlite3
 import psycopg2 
@@ -13,7 +13,7 @@ app.secret_key = '723_bilisim_ozel_anahtar_99'
 ADMIN_PASSWORD = "admin723_elazig"
 
 # --- KESİN YOL AYARLARI ---
-BASE_DIR = os.getcwd()
+BASE_DIR = os.getcwd() # Vercel için en güvenli yol
 LOGO_PATH = os.path.join(BASE_DIR, '723_bilisim_hizmetleri_highres.jpeg')
 ORIGINAL_FONT_PATH = os.path.join(BASE_DIR, 'DejaVuSans.ttf')
 
@@ -75,21 +75,26 @@ class DijitalServisFormu(FPDF):
         self.cell(0, 5, 'Teknik Servis Onarım Formu', ln=1, align='L')
         self.ln(20)
 
-    # Standart tablo satırı
     def tablo_satiri(self, etiket, veri):
         self.set_fill_color(245, 245, 245)
         self.set_font('DejaVu', '', 10)
         self.cell(50, 10, f" {etiket}", border=1, fill=True)
         self.cell(0, 10, f" {veri}", border=1, ln=1)
 
-    # Uzun metinler (Arıza/Adres) için geliştirilmiş tablo satırı
     def tablo_blok(self, etiket, veri):
         self.set_fill_color(245, 245, 245)
         self.set_font('DejaVu', '', 10)
-        # Başlık kısmını yaz
         self.cell(0, 10, f" {etiket}", border='LTR', ln=1, fill=True)
-        # Veri kısmını yaz (multi_cell ile alt satıra geçişi destekle)
         self.multi_cell(0, 10, f" {veri}", border='LBR')
+
+# --- SEO ROTALARI (YENİ EKLENDİ) ---
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'sitemap.xml')
 
 # --- ROTALAR ---
 @app.route('/')
@@ -183,6 +188,7 @@ def randevu_al():
 
         pdf = DijitalServisFormu()
         
+        # Vercel Font Çözümü
         TMP_FONT_PATH = os.path.join(tempfile.gettempdir(), 'DejaVuSans.ttf')
         if not os.path.exists(TMP_FONT_PATH) and os.path.exists(ORIGINAL_FONT_PATH):
             shutil.copy(ORIGINAL_FONT_PATH, TMP_FONT_PATH)
@@ -212,10 +218,10 @@ def randevu_al():
         pdf.tablo_satiri("Model", f['model'])
         pdf.ln(5)
 
-        # Arıza ve Adres için Yeni Blok Yapısı
+        # Arıza ve Adres Blok Yapısı
         pdf.cell(0, 10, " ARIZA VE ADRES DETAYLARI", ln=1)
         pdf.tablo_blok("Arıza Özeti", f['detay'])
-        pdf.ln(2) # Küçük bir boşluk
+        pdf.ln(2)
         pdf.tablo_blok("Müşteri Adresi", f['adres'])
 
         dosya_adi = f"servis_formu_{datetime.now().strftime('%H%M%S')}.pdf"
