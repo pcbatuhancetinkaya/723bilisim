@@ -87,7 +87,7 @@ class DijitalServisFormu(FPDF):
         self.cell(0, 10, f" {etiket}", border='LTR', ln=1, fill=True)
         self.multi_cell(0, 10, f" {veri}", border='LBR')
 
-# --- SEO ROTALARI (YENİ EKLENDİ) ---
+# --- SEO ROTALARI ---
 @app.route('/robots.txt')
 def robots():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'robots.txt')
@@ -95,6 +95,12 @@ def robots():
 @app.route('/sitemap.xml')
 def sitemap():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'sitemap.xml')
+
+# Zoho Doğrulama Rotası
+@app.route('/zohoverify/verifyforzoho.html')
+def zoho_verification_page():
+    # İndirdiğin HTML dosyasının içindeki kodu buraya ekledim
+    return "zoho-verification=zb27758634.zmverify.zoho.eu"
 
 # --- ROTALAR ---
 @app.route('/')
