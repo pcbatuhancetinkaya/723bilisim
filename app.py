@@ -87,7 +87,13 @@ class DijitalServisFormu(FPDF):
         self.cell(0, 10, f" {etiket}", border='LTR', ln=1, fill=True)
         self.multi_cell(0, 10, f" {veri}", border='LBR')
 
-# --- SEO ROTALARI ---
+# --- SEO VE REKLAM ROTALARI ---
+
+@app.route('/ads.txt')
+def ads_txt():
+    # Google AdSense yetkilendirme kodu
+    return "google.com, pub-7620342646015973, DIRECT, f08c47fec0942fa0"
+
 @app.route('/robots.txt')
 def robots():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'robots.txt')
@@ -99,7 +105,6 @@ def sitemap():
 # Zoho Doğrulama Rotası
 @app.route('/zohoverify/verifyforzoho.html')
 def zoho_verification_page():
-    # İndirdiğin HTML dosyasının içindeki kodu buraya ekledim
     return "zoho-verification=zb27758634.zmverify.zoho.eu"
 
 # --- ROTALAR ---
