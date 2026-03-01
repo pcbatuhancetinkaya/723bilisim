@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, session, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, send_file, session, redirect, url_for, flash, send_from_directory, Response
 from fpdf import FPDF
 from datetime import datetime, timedelta
 import os
@@ -92,7 +92,8 @@ class DijitalServisFormu(FPDF):
 @app.route('/ads.txt')
 def ads_txt():
     # Google AdSense yetkilendirme kodu
-    return "google.com, pub-7620342646015973, DIRECT, f08c47fec0942fa0"
+    ads_content = "google.com, pub-7620342646015973, DIRECT, f08c47fec0942fa0"
+    return Response(ads_content, mimetype='text/plain')
 
 @app.route('/robots.txt')
 def robots():
@@ -105,6 +106,7 @@ def sitemap():
 # Zoho Doğrulama Rotası
 @app.route('/zohoverify/verifyforzoho.html')
 def zoho_verification_page():
+    # İndirdiğin HTML dosyasının içindeki kodu buraya ekledim
     return "zoho-verification=zb27758634.zmverify.zoho.eu"
 
 # --- ROTALAR ---
